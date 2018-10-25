@@ -34,6 +34,35 @@ int main(int argc, char **argv) {
 		fprintf(stdout, "\n[+]Testing port: %d\n", ports[i]);
 		scanner(ports[i], host);
 	}
+	    //use file to see log when you scan port
+	    printf("Scanning ports 0 - 65535 for IP address : %s\n", argv[1]);
+
+    FILE * file = fopen("/home/ether/Desktop/Projects/Ports_log.txt", "w");//open log file
+
+    for (unsigned short port = 0; port < MAX; port++)//loop through and scan all ports
+    {
+        int Connection = socket(AF_INET,SOCK_STREAM, 0);
+        sockaddr_in temp = { 0 };
+
+        //fill the struct with information on the computer you wish to scan
+        temp.sin_addr.s_addr = inet_addr(argv[1]);
+        temp.sin_family = AF_INET;
+        temp.sin_port = htons(port);
+
+        int error = connect(Connection, (sockaddr*)&temp, sizeof temp);
+        if(error != -1) 
+        {
+            //if the port is open then get information about that port and print it to the log file
+            char host[128];
+            char service[128];
+            getnameinfo((sockaddr*)&temp, sizeof temp, host, (sizeof host), service, sizeof service, 0);
+            printf("Port : %d, Service : %s, Open\n", port, service);
+            fprintf(file, "Port : %d, Service : %s, Open\n", port, service);
+        }
+        close(Connection); //Destroy socket
+    }
+    fclose(file);//Close the file
+	    
 	return 0;
 }
 
